@@ -72,7 +72,7 @@ var createCmd = &cobra.Command{
 		kubelessClient, err := utils.GetKubelessClientOutCluster()
 		if err != nil {
 			logrus.Fatalf("Can not out-of-cluster client: %v", err)
-		}		
+		}
 		_, err = utils.GetFunction(kubelessClient, functionName, ns)
 		if err != nil {
 			logrus.Fatalf("Unable to find the function %s in the namespace %s. Received %s: ", functionName, ns, err)
