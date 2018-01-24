@@ -529,6 +529,7 @@ func EnsureFuncDeployment(client kubernetes.Interface, funcObj *kubelessApi.Func
 
 	runtimeVolumeName := funcObj.ObjectMeta.Name
 	depsVolumeName := funcObj.ObjectMeta.Name + "-deps"
+	secretsVolumeName := funcObj.ObjectMeta.Name + "-sec"
 	podAnnotations := map[string]string{
 		// Attempt to attract the attention of prometheus.
 		// For runtimes that don't support /metrics,
@@ -594,6 +595,20 @@ func EnsureFuncDeployment(client kubernetes.Interface, funcObj *kubelessApi.Func
 				},
 			},
 		})
+	secret, _ := client.CoreV1().Secrets(funcObj.ObjectMeta.Namespace).Get(funcObj.ObjectMeta.Name, metav1.GetOptions{})
+	opt := true
+	if secret != nil {
+		dpm.Spec.Template.Spec.Volumes = append(dpm.Spec.Template.Spec.Volumes,
+			v1.Volume{
+				Name: secretsVolumeName,
+				VolumeSource: v1.VolumeSource{
+					Secret: &v1.SecretVolumeSource{
+						SecretName: funcObj.ObjectMeta.Name,
+						Optional:   &opt,
+					},
+				},
+			})
+	}
 
 	if len(dpm.Spec.Template.Spec.Containers) == 0 {
 		dpm.Spec.Template.Spec.Containers = append(dpm.Spec.Template.Spec.Containers, v1.Container{})
@@ -653,6 +668,13 @@ func EnsureFuncDeployment(client kubernetes.Interface, funcObj *kubelessApi.Func
 	runtimeVolumeMount := v1.VolumeMount{
 		Name:      runtimeVolumeName,
 		MountPath: "/kubeless",
+	}
+	if secret != nil {
+		secretVolumeMount := v1.VolumeMount{
+			Name:      secretsVolumeName,
+			MountPath: "/secrets",
+		}
+		dpm.Spec.Template.Spec.Containers[0].VolumeMounts = append(dpm.Spec.Template.Spec.Containers[0].VolumeMounts, secretVolumeMount)
 	}
 
 	dpm.Spec.Template.Spec.Containers[0].VolumeMounts = append(dpm.Spec.Template.Spec.Containers[0].VolumeMounts, runtimeVolumeMount)
