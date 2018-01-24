@@ -1,5 +1,6 @@
 get-python:
 	kubeless function deploy get-python --trigger-http --runtime python2.7 --handler helloget.foo --from-file python/helloget.py
+	kubeless trigger create --function-name get-python get-python
 	echo "curl localhost:8080/api/v1/proxy/namespaces/default/services/get-python/"
 
 get-python-verify:
@@ -17,12 +18,14 @@ get-python-update-verify:
 
 get-python-deps:
 	kubeless function deploy get-python-deps --trigger-http --runtime python2.7 --handler helloget.foo --from-file python/hellowithdeps.py --dependencies python/requirements.txt
+	kubeless trigger create --function-name get-python-deps get-python-deps 
 
 get-python-deps-verify:
 	kubeless function call get-python-deps |egrep Google
 
 get-python-custom-port:
 	kubeless function deploy get-python-custom-port --trigger-http --runtime python2.7 --handler helloget.foo --from-file python/helloget.py --port 8081
+	kubeless trigger create --function-name get-python-custom-port get-python-custom-port --trigger-http
 
 get-python-custom-port-verify:
 	kubeless function call get-python-custom-port |egrep hello.world
@@ -53,7 +56,7 @@ get-python-36-verify:
 
 scheduled-get-python:
 	kubeless function deploy scheduled-get-python --schedule "* * * * *" --runtime python2.7 --handler helloget.foo --from-file python/helloget.py
-
+	kubeless trigger create scheduled-get-python --function-name  scheduled-get-python --schedule "* * * * *" 
 scheduled-get-python-verify:
 	number="1"; \
 	timeout="70"; \
@@ -82,6 +85,7 @@ timeout-python-verify:
 
 get-nodejs:
 	kubeless function deploy get-nodejs --trigger-http --runtime nodejs6 --handler helloget.foo --from-file nodejs/helloget.js
+	kubeless trigger create get-nodejs --function-name get-nodejs --trigger-http
 	echo "curl localhost:8080/api/v1/proxy/namespaces/default/services/get-nodejs/"
 
 get-nodejs-verify:
@@ -89,6 +93,7 @@ get-nodejs-verify:
 
 get-nodejs-custom-port:
 	kubeless function deploy get-nodejs-custom-port --trigger-http --runtime nodejs6 --handler helloget.foo --from-file nodejs/helloget.js --port 8083
+	kubeless trigger create get-nodejs-custom-port --function-name get-nodejs-custom-port
 	echo "curl localhost:8083/api/v1/proxy/namespaces/default/services/get-nodejs-custom-port/"
 
 get-nodejs-custom-port-verify:
@@ -106,6 +111,7 @@ timeout-nodejs-verify:
 
 get-nodejs-deps:
 	kubeless function deploy get-nodejs-deps --trigger-http --runtime nodejs6 --handler helloget.handler --from-file nodejs/hellowithdeps.js --dependencies nodejs/package.json
+	kubeless trigger create get-nodejs-deps --function-name get-nodejs-deps
 
 get-nodejs-deps-verify:
 	kubeless function call get-nodejs-deps --data '{"hello": "world"}' | grep -q '"hello":"world","date"'
