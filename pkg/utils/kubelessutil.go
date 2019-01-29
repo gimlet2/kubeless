@@ -17,6 +17,7 @@ limitations under the License.
 package utils
 
 import (
+	"log"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -556,7 +557,7 @@ func mergeMap(dst, src map[string]string) map[string]string {
 func EnsureFuncDeployment(client kubernetes.Interface, funcObj *kubelessApi.Function, or []metav1.OwnerReference, lr *langruntime.Langruntimes, prebuiltRuntimeImage, provisionImage string, imagePullSecrets []v1.LocalObjectReference) error {
 
 	var err error
-
+	log.Printf("Added layer to description at %+v", *funcObj)
 	podAnnotations := map[string]string{
 		// Attempt to attract the attention of prometheus.
 		// For runtimes that don't support /metrics,
